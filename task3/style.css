@@ -40,3 +40,15 @@ button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.status.alive {
+  color: green;
+}
+
+.status.dead {
+  color: red;
+}
+
+.status.unknown {
+  color: gray;
+}

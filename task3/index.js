@@ -59,7 +59,7 @@ myBike.stop();
 //2. Робота з DOM:
 
 const list = document.getElementById("characterList");
-const status = document.getElementById("status");
+const loadingStatus = document.getElementById("status");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const pageNumber = document.getElementById("pageNumber");
@@ -67,7 +67,7 @@ const pageNumber = document.getElementById("pageNumber");
 let currentPage = 1;
 
 async function fetchCharacters(page) {
-  status.textContent = "Loading…";
+  loadingStatus.textContent = "Loading…";
   list.innerHTML = "";
 
   const response = await fetch(
@@ -78,7 +78,7 @@ async function fetchCharacters(page) {
   renderCharacters(data.results);
   updatePagination(data.info);
 
-  status.textContent = "";
+  loadingStatus.textContent = "";
 }
 
 function renderCharacters(characters) {
@@ -87,7 +87,10 @@ function renderCharacters(characters) {
 
     li.innerHTML = `
       <img src="${character.image}" alt="${character.name}">
-      <span>${character.name}</span>
+      <div class="text">
+        <div class="name">${character.name}</div>
+        <div class="status ${character.status.toLowerCase()}">${character.status}</div>
+      </div>
     `;
 
     list.appendChild(li);
