@@ -6,6 +6,7 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { getTheme } from "./theme";
 import AppRouter from "./router/AppRouter.jsx";
+import { CustomThemeProvider } from "./providers/CustomThemeProvider";
 
 const App = () => {
   const [mode, setMode] = useState("light");
@@ -15,7 +16,7 @@ const App = () => {
   };
 
   return (
-    <ThemeProvider theme={getTheme(mode)}>
+    <CustomThemeProvider theme={getTheme(mode)}>
       <CssBaseline />
       <BrowserRouter>
         <Box sx={{ position: "fixed", top: 155, left: 5 }}>
@@ -25,7 +26,7 @@ const App = () => {
         </Box>
         <AppRouter />
       </BrowserRouter>
-    </ThemeProvider>
+    </CustomThemeProvider>
   );
 };
 
