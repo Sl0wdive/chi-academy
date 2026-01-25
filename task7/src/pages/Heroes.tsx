@@ -6,15 +6,19 @@ import CloseIcon from "@mui/icons-material/Close";
 import { getHeroes } from "../api/rickAndMorty";
 import HeroesTable from "../components/HeroesTable";
 import Hero from "./Hero";
+import useRequest from "ahooks/lib/useRequest/src/useRequest";
 
 const Heroes = () => {
-  const [heroes, setHeroes] = useState([]);
   const { id } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getHeroes().then(setHeroes);
-  }, []);
+  
+  const {
+    data: heroes = [],
+    loading,
+    error,
+  } = useRequest(getHeroes);
+
 
   const handleClosePanel = () => {
     navigate("/heroes");

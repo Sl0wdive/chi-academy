@@ -1,8 +1,8 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { getHeroById } from "../api/rickAndMorty";
 import { Box, Typography, Avatar } from "@mui/material";
+import { useRequest } from "ahooks";
 
 interface Hero {
   id: number;
@@ -14,13 +14,11 @@ interface Hero {
 
 const Hero = () => {
   const { id } = useParams<{ id: string }>();
-  const [hero, setHero] = useState<Hero | null>(null);
 
-  useEffect(() => {
-    if (!id) return;
-
-    getHeroById(id).then(setHero);
-  }, [id]);
+  const { data: hero, loading } = useRequest(() => getHeroById(id!), {
+    ready: !!id,
+    refreshDeps: [id],
+  });
 
   if (!hero) return null;
 
