@@ -28,7 +28,6 @@ const LoginForm: React.FC = () => {
   const handleSubmit = async (values: LoginValues) => {
     try {
       await dispatch(loginThunk(values)).unwrap();
-      console.log(values);
       await dispatch(fetchMeThunk());
       router.push("/");
     } catch (e) {

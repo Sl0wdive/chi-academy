@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import { getMyExhibits, Exhibit } from "@/src/api/exhibitActions";
 import Post from "@/src/components/Post";
-import Pagination from "@/src/components/Paginaton";
+import Pagination from "@/src/components/Pagination";
 import ControlBar from "@/src/components/ControlBar";
 import { useSearchParams } from "next/navigation";
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Box } from "@mui/material";
 import { getAllExhibits, Exhibit } from "../api/exhibitActions";
 import Post from "../components/Post";
-import Pagination from "../components/Paginaton";
+import Pagination from "../components/Pagination";
 import ControlBar from "../components/ControlBar";
 
 type Props = {
