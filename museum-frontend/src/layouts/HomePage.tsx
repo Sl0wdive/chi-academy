@@ -1,31 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import React, { useCallback, useEffect, useState } from "react";
+import { Alert, Box, CircularProgress, Typography } from "@mui/material";
 import { getMyExhibits } from "../api/exhibitActions";
 import { Exhibit } from "../api/exhibitActions";
 import Post from "../components/Post";
-import Pagination from "../components/Paginaton";
+import Pagination from "../components/Pagination";
 import ControlBar from "../components/ControlBar";
+
+const PAGINATION_AMOUNT = 10;
 
 const HomePage: React.FC = () => {
   const [posts, setPosts] = useState<Exhibit[]>([]);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadPosts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await getMyExhibits(page, PAGINATION_AMOUNT);
+      setPosts(res.data);
+      setLastPage(res.lastPage);
+    } catch (err: any) {
+      setError(err?.message || "Failed to load posts");
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [page]);
 
   useEffect(() => {
-    const loadPosts = async () => {
-      setLoading(true);
-      try {
-        const res = await getMyExhibits(page, 10);
-        setPosts(res.data);
-        setLastPage(res.lastPage);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadPosts();
-  }, [page]);
+  }, [loadPosts]);
 
   return (
     <>
@@ -37,7 +45,13 @@ const HomePage: React.FC = () => {
           </Box>
         )}
 
-        {!loading && posts.length === 0 && (
+        {error && (
+          <Box mb={2}>
+            <Alert severity="error">{error}</Alert>
+          </Box>
+        )}
+
+        {!loading && !error && posts.length === 0 && (
           <Box textAlign="center" py={4}>
             <Typography variant="h5" color="textSecondary" gutterBottom>
               No posts found
@@ -48,7 +62,7 @@ const HomePage: React.FC = () => {
           </Box>
         )}
 
-        {!loading && posts.length > 0 && (
+        {!loading && !error && posts.length > 0 && (
           <>
             {posts.map((post) => (
               <Post key={post.id} post={post} />

@@ -1,11 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Alert, Box, CircularProgress, Snackbar } from "@mui/material";
 import { getAllExhibits } from "../api/exhibitActions";
 import { Exhibit } from "../api/exhibitActions";
 import Post from "../components/Post";
-import Pagination from "../components/Paginaton";
+import Pagination from "../components/Pagination";
 import ControlBar from "../components/ControlBar";
 import { io, Socket } from "socket.io-client";
+
+interface NewPostNotification {
+  id: number;
+  user: string;
+  message: string;
+}
+
+const SOCKET_SERVER_URL = "https://playground.zenberry.one/notifications";
+const PAGINATION_AMOUNT = 10;
 
 const StripePage: React.FC = () => {
   const [posts, setPosts] = useState<Exhibit[]>([]);
@@ -15,49 +24,60 @@ const StripePage: React.FC = () => {
 
   const [notifyOpen, setNotifyOpen] = useState(false);
   const [notifyText, setNotifyText] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const SOCKET_SERVER_URL = "https://playground.zenberry.one/notifications";
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-  const socket: Socket = io(
-    SOCKET_SERVER_URL,
-    {
+    socketRef.current = io(SOCKET_SERVER_URL, {
       transports: ["websocket"],
       reconnection: true,
       reconnectionDelay: 1000,
+    });
+
+    const socket = socketRef.current;
+
+    if (process.env.NODE_ENV === "development") {
+      socket.on("connect", () => {
+        console.log("Socket connected");
+      });
     }
-  );
 
-  socket.on("connect", () => {
-    console.log("Socket connected");
-  });
-
-  socket.on("newPost", (payload) => {
-    const item = Array.isArray(payload) ? payload[0] : payload;
-
-    setNotifyText(`New post from ${item.user}`);
-    setNotifyOpen(true);
-  });
-
-  return () => {
-    socket.disconnect();
-  };
-}, []);
-
-  useEffect(() => {
-    const loadPosts = async () => {
-      setLoading(true);
-      try {
-        const res = await getAllExhibits(page, 10);
-        setPosts(res.data);
-        setLastPage(res.lastPage);
-      } finally {
-        setLoading(false);
-      }
+    const handleNewPost = (
+      payload: NewPostNotification | NewPostNotification[],
+    ) => {
+      const item = Array.isArray(payload) ? payload[0] : payload;
+      setNotifyText(`New post from ${item.user}`);
+      setNotifyOpen(true);
     };
 
-    loadPosts();
+    socket.on("newPost", handleNewPost);
+
+    return () => {
+      socketRef.current?.off("newPost", handleNewPost);
+      socketRef.current?.disconnect();
+    };
+  }, []);
+
+  const loadPosts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await getAllExhibits(page, PAGINATION_AMOUNT);
+      setPosts(res.data);
+      setLastPage(res.lastPage);
+    } catch (err: any) {
+      setError(err?.message || "Failed to load posts");
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
   }, [page]);
+
+  useEffect(() => {
+    loadPosts();
+  }, [loadPosts]);
 
   return (
     <>
@@ -66,9 +86,19 @@ const StripePage: React.FC = () => {
       <Box maxWidth="600px" mx="auto" mt={4}>
         {loading && <CircularProgress />}
 
-        {!loading && posts.map((post) => <Post key={post.id} post={post} />)}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
-        <Pagination page={page} lastPage={lastPage} onChange={setPage} />
+        {!loading &&
+          !error &&
+          posts.map((post) => <Post key={post.id} post={post} />)}
+
+        {!loading && !error && (
+          <Pagination page={page} lastPage={lastPage} onChange={setPage} />
+        )}
       </Box>
 
       <Snackbar
