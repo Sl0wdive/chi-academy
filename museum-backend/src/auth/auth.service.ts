@@ -52,7 +52,10 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const newAccessToken = this.jwtService.sign({ userId: isValid.id });
+    const newAccessToken = this.jwtService.sign(
+      { userId: isValid.id },
+      { expiresIn: '3d' },
+    );
     const newRefreshToken = this.generateNewRefreshToken(isValid.id);
 
     return {
@@ -74,6 +77,6 @@ export class AuthService {
   }
 
   private generateNewRefreshToken(userId: number) {
-    return this.jwtService.sign({ userId });
+    return this.jwtService.sign({ userId }, { expiresIn: '7d' });
   }
 }
