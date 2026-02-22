@@ -79,6 +79,7 @@ export class ExhibitsController {
       file,
       createExhibitDto.description,
       req.user.id,
+      req.user.username,
     );
 
     return exhibit;

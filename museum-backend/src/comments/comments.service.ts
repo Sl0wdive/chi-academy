@@ -27,12 +27,18 @@ export class CommentsService {
       1,
     );
 
-    return this.commentsRepository.save(comment);
+    const savedComment = await this.commentsRepository.save(comment);
+
+    return this.commentsRepository.findOne({
+      where: { id: savedComment.id },
+      relations: ['user'],
+    });
   }
 
   async findAll(exhibitId: number) {
     return this.commentsRepository.find({
       where: { exhibitId },
+      relations: ['user'],
       order: { id: 'ASC' },
     });
   }

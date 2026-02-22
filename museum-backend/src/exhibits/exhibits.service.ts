@@ -10,6 +10,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../users/user.entity';
+import { NotificationsGateway } from 'src/notifications/notifications.gateway';
 
 interface PaginatedExhibits {
   data: Exhibit[];
@@ -25,12 +26,14 @@ export class ExhibitsService {
     private exhibitsRepository: Repository<Exhibit>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   async create(
     file: Express.Multer.File,
     description: string,
     userId: number,
+    username: string,
   ): Promise<Exhibit> {
     const uploadPath = path.join(__dirname, '../..', 'static');
 
@@ -49,6 +52,12 @@ export class ExhibitsService {
       imageUrl: `/static/${uniqueFileName}`,
       description,
       userId,
+    });
+
+    this.notificationsGateway.sendNewExhibitNotification({
+      id: exhibit.id,
+      user: username,
+      description: exhibit.description,
     });
 
     return this.exhibitsRepository.save(exhibit);
