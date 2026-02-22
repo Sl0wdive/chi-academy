@@ -4,9 +4,11 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Expose } from 'class-transformer';
+import { Comment } from '../comments/comment.entity';
 
 @Entity()
 export class Exhibit {
@@ -30,8 +32,14 @@ export class Exhibit {
   @Column()
   userId!: number;
 
+  @OneToMany(() => Comment, (comment) => comment.exhibit)
+  comments: Comment[];
+
   @Expose()
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date;
-  comments: any;
+
+  @Expose()
+  @Column({ default: 0 })
+  commentCount: number;
 }

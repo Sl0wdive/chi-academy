@@ -109,6 +109,31 @@ export class ExhibitsController {
     return plainToInstance(Exhibit, exhibit, { excludeExtraneousValues: true });
   }
 
+  @Get('my-posts')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Get exhibits created by the current user' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of exhibits created by the current user',
+  })
+  async findMyExhibits(@Query() query: QueryExhibitsDto, @Request() req) {
+    const { page = 1, limit = 10 } = query;
+
+    const exhibits = await this.exhibitsService.findMyExhibits(
+      req.user.id,
+      page,
+      limit,
+    );
+
+    return {
+      ...exhibits,
+      data: plainToInstance(Exhibit, exhibits.data, {
+        excludeExtraneousValues: true,
+      }),
+    };
+  }
+
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @ApiBearerAuth('access-token')

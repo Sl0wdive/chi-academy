@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { Exhibit } from 'src/exhibits/exhibit.entity';
-import { User } from 'src/users/user.entity';
+import { Exhibit } from '../exhibits/exhibit.entity';
+import { User } from '../users/user.entity';
 import {
   Column,
   Entity,
@@ -14,21 +14,17 @@ import {
 export class Comment {
   @Expose()
   @PrimaryGeneratedColumn()
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ example: 1, description: 'ID of the comment' })
   id: number;
 
   @Expose()
   @Column()
-  @ApiProperty({ example: 'string' })
+  @ApiProperty({ example: 'string', description: 'Comment text' })
   text: string;
 
-  @ManyToOne(
-    () => Exhibit,
-    (exhibit: Exhibit) => exhibit.comments as Comment[],
-    {
-      onDelete: 'CASCADE',
-    },
-  )
+  @ManyToOne(() => Exhibit, (exhibit: Exhibit) => exhibit.comments, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'exhibitId' })
   exhibit: Exhibit;
 
@@ -37,7 +33,7 @@ export class Comment {
   @ApiProperty({ example: 1, description: 'ID of the exhibit' })
   exhibitId: number;
 
-  // @ManyToOne(() => User, (user) => user.comments, { eager: true })
+  @ManyToOne(() => User, (user) => user.comments, { eager: true })
   @JoinColumn({ name: 'userId' })
   @ApiProperty({ type: () => User })
   user: User;
@@ -49,4 +45,8 @@ export class Comment {
     description: 'ID of the user who wrote the comment',
   })
   userId: number;
+
+  @Expose()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt!: Date;
 }

@@ -84,6 +84,33 @@ export class ExhibitsService {
     return exhibit;
   }
 
+  async findMyExhibits(
+    userId: number,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedExhibits> {
+    if (page < 1 || !page) {
+      page = 1;
+    }
+
+    if (limit < 1 || !limit) {
+      limit = 10;
+    }
+
+    const [result, total] = await this.exhibitsRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+      where: { userId },
+    });
+    return {
+      data: result,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+
   async remove(id: number, userId: number): Promise<void> {
     const exhibit = await this.exhibitsRepository.findOne({ where: { id } });
 

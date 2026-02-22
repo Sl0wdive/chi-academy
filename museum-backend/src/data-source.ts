@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { User } from './users/user.entity';
 import dotenv from 'dotenv';
 import { Exhibit } from './exhibits/exhibit.entity';
+import { Comment } from './comments/comment.entity';
 
 dotenv.config();
 
@@ -15,6 +16,6 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME!,
   synchronize: false,
   logging: false,
-  entities: [User, Exhibit],
+  entities: [User, Exhibit, Comment],
   migrations: ['./src/migrations/*.ts'],
 });

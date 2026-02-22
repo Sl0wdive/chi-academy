@@ -7,6 +7,8 @@ import { User } from './users/user.entity';
 import { Exhibit } from './exhibits/exhibit.entity';
 import { AuthModule } from './auth/auth.module';
 import { ExhibitsModule } from './exhibits/exhibits.module';
+import { CommentsModule } from './comments/comments.module';
+import { Comment } from './comments/comment.entity';
 
 @Module({
   imports: [
@@ -17,12 +19,13 @@ import { ExhibitsModule } from './exhibits/exhibits.module';
       username: process.env.DB_USERNAME ?? 'postgres',
       password: process.env.DB_PASSWORD ?? '123456',
       database: process.env.DB_NAME ?? 'museumdb',
-      entities: [User, Exhibit],
+      entities: [User, Exhibit, Comment],
       synchronize: false,
     }),
     UsersModule,
     AuthModule,
     ExhibitsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

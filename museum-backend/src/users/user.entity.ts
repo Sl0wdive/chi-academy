@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { Exhibit } from '../exhibits/exhibit.entity';
 import { Column, OneToMany, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Comment } from '../comments/comment.entity';
 
 @Entity()
 export class User {
@@ -35,8 +36,8 @@ export class User {
   })
   exhibits!: Exhibit[];
 
-  // @OneToMany(() => Comment, (comment) => comment.user)
-  // comments: Comment[];
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 
   @Column({ default: false })
   isAdmin: boolean;
