@@ -4,24 +4,26 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import LoginPage from "./layouts/LoginPage";
 import RegisterPage from "./layouts/RegisterPage";
 import StripePage from "./layouts/StipePage";
-import { fetchMeThunk } from "./store/slices/userSlice";
 import { useEffect } from "react";
-import { AppDispatch } from "./store/store";
+import { AppDispatch, RootState } from "./store/store";
 import HomePage from "./layouts/HomePage";
+
+import { initializeAuthThunk } from "./store/slices/userSlice";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
 
-  const isAuthenticated = useSelector(
-    (state: any) => state.user.isAuthenticated,
+  const { isAuthenticated, initialized } = useSelector(
+    (state: RootState) => state.user,
   );
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      dispatch(fetchMeThunk());
-    }
+    dispatch(initializeAuthThunk());
   }, [dispatch]);
+
+  if (!initialized) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
